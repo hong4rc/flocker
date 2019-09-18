@@ -26,7 +26,10 @@ const objToForm = (obj) => {
   return form;
 };
 
-const blockUser = (id) => fetch('https://www.facebook.com/ajax/privacy/block_user.php', {
+const fbFetch = (...args) => fetch(...args).then(res => res.text())
+  .then((text) => JSON.parse(text.replace('for (;;);', '')));
+
+const blockUser = (id) => fbFetch('https://www.facebook.com/ajax/privacy/block_user.php', {
   method: 'POST',
   credentials: 'include',
   body: objToForm({
@@ -37,7 +40,7 @@ const blockUser = (id) => fetch('https://www.facebook.com/ajax/privacy/block_use
   }),
 });
 
-const blockPage = (id) => fetch('https://www.facebook.com/privacy/block_page/', {
+const blockPage = (id) => fbFetch('https://www.facebook.com/privacy/block_page/', {
   method: 'POST',
   credentials: 'include',
   body: objToForm({
@@ -73,19 +76,21 @@ chrome.runtime.onMessage.addListener((msg, bgr, sendRes) => {
     const { type } = matches.groups;
     switch (type) {
       case 'user':
-        blockUser(id).then(() => {
+        blockUser(id).then((res) => {
           sendRes({
             name,
             type,
+            _err: res.error,
           });
         });
         break;
       case 'hovercard':
       case 'page':
-        blockPage(id).then(() => {
+        blockPage(id).then((res) => {
           sendRes({
             name,
             type,
+            _err: res.error,
           });
         });
         break;

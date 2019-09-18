@@ -40,7 +40,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         type: 'basic',
         iconUrl: iconBlocked,
         title: res.name,
-        message: `Blocked ${res.type}`,
+        message: res._err ? 'Cannot block' : `Blocked ${res.type}`,
       }, (nId) => {
         setTimeout(() => chrome.notifications.clear(nId), 10000);
       });
