@@ -24,6 +24,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (!res) {
       return;
     }
+    if (res.err) {
+      console.info(res.err);
+      return;
+    }
     if (res.type === 'group') {
       chrome.notifications.create({
         type: 'basic',

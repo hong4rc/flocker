@@ -51,15 +51,24 @@ const blockPage = (id) => fetch('https://www.facebook.com/privacy/block_page/', 
 chrome.runtime.onMessage.addListener((msg, bgr, sendRes) => {
   if (msg.cmd === 'flock') {
     if (!lastElem) {
-      return false;
+      return sendRes({
+        err: 'No last element',
+      });
     }
     const name = lastElem.getAttribute('title') || lastElem.innerText;
-    const url = new URL(lastElem.getAttribute('data-hovercard').replace(rOrigin, window.location.origin));
+    const hover = lastElem.getAttribute('data-hovercard');
+    if (!hover) {
+      sendRes({
+        err: 'No last element',
+      });
+    }
+    const url = new URL(hover.replace(rOrigin, window.location.origin));
     const id = url.searchParams.get('id');
     const matches = rPathName.exec(url.pathname);
     if (!(id && matches && matches.groups)) {
-      console.warn(url.href);
-      return false;
+      return sendRes({
+        err: `Not id/match in ${url.href}`,
+      });
     }
     const { type } = matches.groups;
     switch (type) {
@@ -81,16 +90,18 @@ chrome.runtime.onMessage.addListener((msg, bgr, sendRes) => {
         });
         break;
       case 'group':
-          sendRes({
-            name,
-            type,
-          });
-          return false;
+        return sendRes({
+          name,
+          type,
+        });
       default:
-        console.warn(`I don't handle ${type} now`);
-        return false;
+        return sendRes({
+          err: `I don't handle ${type} now`,
+        });
     }
     return true;
   }
-  return false;
+  return sendRes({
+    err: '`cmd` is not `flock`',
+  });
 });
