@@ -37,6 +37,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         iconUrl: iconBlocked,
         title: res.name,
         message: `Blocked ${res.type}`,
+      }, (nId) => {
+        setTimeout(() => chrome.notifications.clear(nId), 10000);
       });
     }
   });
