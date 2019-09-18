@@ -13,23 +13,28 @@ chrome.contextMenus.removeAll(() => {
 
 const rFbName = /\/(.+)/;
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  const link = new URL(info.linkUrl)
+  const link = new URL(info.linkUrl);
   const m = rFbName.exec(link.pathname);
   if (m && m.length !== 2) {
-    console.log(lastElem);
     return;
   }
   chrome.tabs.sendMessage(tab.id, {
-      cmd: 'flock'
+    cmd: 'flock',
   }, (res) => {
-    if (res.name) {
+    if (res.type === 'group') {
       chrome.notifications.create({
         type: 'basic',
         iconUrl: iconBlocked,
         title: res.name,
-        message: 'done'
+        message: 'Too dangerous',
+      });
+    } else if (res.name) {
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: iconBlocked,
+        title: res.name,
+        message: `Blocked ${res.type}`,
       });
     }
   });
-
 });
