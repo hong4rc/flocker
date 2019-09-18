@@ -21,6 +21,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   chrome.tabs.sendMessage(tab.id, {
     cmd: 'flock',
   }, (res) => {
+    if (!res) {
+      return;
+    }
     if (res.type === 'group') {
       chrome.notifications.create({
         type: 'basic',
